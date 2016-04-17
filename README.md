@@ -224,12 +224,12 @@
 ##-----java.util.Hashtable类-----
 38.	其内部类class Entry含有哪4个字段？
 
-		```java    
-		final int hash;
+	```java    
+	final int hash;
         final K key;
         V value;
         Entry<K,V> next;
-		```
+	```
 
 ##-----java.util.TreeMap类-----
 39.	containsKey()的代码中可以看出要找到对象的条件是什么？如果一个Key对象的hashCode是变化的（如随着内容而算出来的），这个Key对象还会找到吗？
