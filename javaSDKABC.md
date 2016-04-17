@@ -1,8 +1,8 @@
-#阅读JDK文档及源代码并简要回答以下问题
+#JAVA ABC
 注：JDKAPI文档（http://docs.oracle.com/javase/8/docs/api/index.html或从http://cf.pku.cn/tds/java下载chm格式的）
  JDK的源代码（一般在 C:\Program Files\Java\jdk1.8.0\src.zip）中
 
-# TODO personal info
+### TODO personal info
 
 ## -----java.lang.Object类-----
 1. 其equals与==有没有差别？
@@ -51,7 +51,7 @@
 	
 	
 
------java.lang.String类-----
+##-----java.lang.String类-----
 10.	为什么说String是immutable的？为什么不要多次循环中使用+=？ 其value是加了哪个修饰语？其replace、append、trim等方法返回的值是什么？
 	1. 为什么说String是immutable的？
 		1. 不可变对象可以提高String Pool的效率和安性。如果一个对象不可变，那么需要复制内容的时候，也就只需要复制其地址，复制地址的效率通常是很高的。
