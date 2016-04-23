@@ -7,7 +7,6 @@
 ## -----java.lang.Object类-----
 1. 其equals与==有没有差别？
 
-	【doc中未能找到==，而且也看不出equals和==有没有明显的区别】
 
 	有区别
 
@@ -24,16 +23,18 @@
 	`native`关键字说明其修饰的方法是一个原生方法，方法的实现不是在当前文件，而是在用其他语言（如C、C++）中实现的。
 
 3.	其toString()返回什么？
-4.	
+
 	`String` 字符串
 
 	具体来说，Object中的`toString()`方法返回类名称和以16进制显示的该实例的hashCode
 	
 4.	其构造函数及finalize()做了什么？
-5.	
+	
 	构造函数中什么也没做。
 
 	`finalize()`中什么也没做。
+
+
 ##-----java.lang.Class类-----
 5.	为什么说Class类不能被继承
 
@@ -47,15 +48,20 @@
 	使用给定的class loader和类名称来得到相应的`Class` object。其中调用了`forName0()`这一私有native方法来完成任务。
 8.	toString()返回什么？
 
-	返回一个字符串，如果是接口，则会输出`interface `+`getName()`的返回值；如果是基本类型，则会直接返回`getName()`；如果是正常的类，则会返回`class `+`getName()`。
+	返回一个字符串，如果是接口，则会输出`“interface” `+`getName()`的返回值；如果是基本类型，则会直接返回`getName()`；如果是正常的类，则会返回`“class” `+`getName()`。
 	`getName()`会返回Class类中的成员`name`
+
 9.	newInstance()中执行了什么？
 
 	`newInstance()`返回Class object所表示的类型的一个新实例。
 	其执行步骤如下：
 	首先，如果System.getSecurityManager()非空，则使用checkMemberAccess来检查成员的访问性。
+
 	*这都是些什么鬼！！*
-	然后，如果已经有缓存过的构造器，则...
+
+	然后，如果没有已经缓存过的构造器，则检查其是否恰好为Class.class，如果是的话，由于class在设计上就不能被构造，所以抛出异常`IllegalAccessException`。检查通过之后，就去获取member.declared的constructor，并将其存入cachedConstructor
+	
+	现在确保了已经将构造器缓存出来，然后利用反射机制进行检查，然后调用构造器的newInstance方法。
 	
 	
 
@@ -65,9 +71,23 @@
 		1. 不可变对象可以提高String Pool的效率和安性。如果一个对象不可变，那么需要复制内容的时候，也就只需要复制其地址，复制地址的效率通常是很高的。
 		2. 不可变对象对于多线程是安全的
 	2. 为什么循环中不能多次使用+=
-		每一次+=，都需要先新建对象，并更改引用，从而增大系统开销。
+	
+		每一次+=，都需要先新建StringBuilder对象，并更改引用，从而增大系统开销。
+
+		> 从编译的代码来看，String+的准确操作是： 
+		> 
+		> new StringBuilder() 
+		> 
+		> new String.valueof() 
+
+		> StringBuilder.<init> 
+		> 
+		> StringBuilder.append() 
+		> 
+		> StringBuilder.toString() 
 	3. value前增加的修饰语？
 		其value系列函数前增加了`static`修饰语，表明返回的对象是不可变的
+		
 		*为什么要返回static string呢？*
 	4. 其replace、append、trim等方法返回的值是什么？
 		返回的是`String`类型的值。
@@ -89,20 +109,23 @@
 		4.计算S÷10的余数M：M = 117 mod 10 = 7；      
 		5.计算10－M的差N：N = 10 ? 7 = 3     (如果10－M的值为10则校验码取0) 
 	* 银行卡号的验证码
+	
 	不同点：String的hashCode的计算没有明显地取余数，而是直接利用了int类型数值的范围？？
-	String的hashCode 的计算利用了乘方运算，（能说更为安全吗？）
+	String的hashCode 的计算利用了乘方运算，比其它的计算方式更为复杂，更不容易出现相等的情况。
 	*这里写的不好*
 12.	equals方法是判断内容相等还是引用相等？compareTo是比较什么？
 
 	首先判断引用是否相同，如果引用相同，则返回`true`，否则，如果对象是String类型的，则进一步比较内容是否相同，相同的情况下，就返回`true`，否则返回`false`。
 	compareTo按照字典顺序进行比较。
+
 13.	intern()方法的注释表明什么样的字符串一定是放到一个池子中的？
 
 	所有“literal string”都在String Pool中
 	"literal"代表字符串，数值等值等于本身。常量表达式计算出来的是“literal”。
 14.	其indexOf使用了什么样的算法流程？
 
-	首先判断起始位置fromIndex是否在合法的范围，然后，从起始位置开始逐个遍历字符串（内容实际上存储在了char[]中），依次检查是否为所查找的字符，如果是，则返回其下标，如果到最后都没有发现，就返回-1。此外，如果所查找的字符ch>=Character.MIN_SUPPLEMENTARY_CODE_POINT,则调用indexOfSupplementary(int ch, int fromIndex)进行查找。该函数中将字符分为高位和低位进行匹配。
+	首先判断起始位置fromIndex是否在合法的范围，然后，从起始位置开始逐个遍历字符串（内容实际上存储在了char[]中），依次检查是否为所查找的字符，如果是，则返回其下标，如果到最后都没有发现，就返回-1。此外，如果所查找的字符ch>=Character.MIN_SUPPLEMENTARY_CODE_POINT,则其为增补字符，调用indexOfSupplementary(int ch, int fromIndex)进行查找。该函数中将字符分为高位和低位进行匹配。
+
 	*为什么要有这个MIN_SUPPLEMENTARY_CODE_POINT呢？*
 15.	substring函数会抛出什么样的异常，这个异常是不是一定要捕获？
 	
@@ -138,6 +161,7 @@
 	* valueOf使用了object类的toString()方法以及String类的诸多构造函数。
 	* format类使用了Formatter类的format方法
 ##-----java.lang.StringBuilder 及 AbstractStringBuilder类-----
+
 18.	StringBuilder的初始内存是多少字符？
 
 	16
@@ -146,13 +170,15 @@
 	旧容量 + 2，也即expandCapacity()将容量扩展为（旧容量 + 1）*2
 20.	insert()、append()、delete()等方法的返回值是什么，这有什么好处？
 
-	返回StringBuffer。好处：确保运算过程中类型的统一，使用StringBuffer类也有助于降低系统的开销。
+	返回StringBuffer。好处：确保运算过程中类型的统一，StringBuffer为可变类，使用StringBuffer类也有助于降低系统的开销。
+
 	*但是还不是真正明白*
 
 ##-----java.lang.Integer类-----
 21.	value字段前面加了什么修饰词？为什么说Integer是immutable的？
 	
 	`static`。因为其成员都是final类型。
+
 	*似乎要从如何判断immutable入手，如何回答呢？*
 22.	其常数如MAX_VALUE前面用了什么修饰词？
 
@@ -225,7 +251,7 @@
 38.	其内部类class Entry含有哪4个字段？
 
 	```java    
-	final int hash;
+		final int hash;
         final K key;
         V value;
         Entry<K,V> next;
@@ -237,6 +263,7 @@
 	`getEntry(key)`的返回不是`null`。而在`getEntry()`中，区分了两种情况：如果存在comparator，则调用getEntryUsingComparator(key)，否则，依次使用k.compareTo()进行比较，直到找到相等的key值，如果不能找到，就返回null。getEntryUsingComparator中也是类似的算法，不过其中调用的比较函数是compare(T,T)。
 	
 	是否能找到取决于有关的比较函数中是否依据hashCode进行比较。由于TreeMap以有序链表*需要确认*的形式存储数据，所以如果hashCode发生变化，会导致原来的排序失效，可能就找不到本来存在的元素了。
+
 	*这里的解释正确吗？*
 ##-----java.util.TreeSet类-----
 40.	TreeSet的底层是用什么对象来实现的？
@@ -245,7 +272,7 @@
 ##-----java.util.Timer类-----
 41.	Timer的底层是如何实现重复执行的？
 
-	调用了sched()私有方法，在该方法中
+	调用了sched()私有方法，在该方法中使用了一个队列，通过在队列中添加和提取任务执行时间来实现重复执行。
 
 	*还没看懂*
 ##-----javax.swing.Timer类-----
@@ -253,6 +280,7 @@
 
 	在`void post() `中调用。
 ## 补充问题
+
 java.util.Arrays
 
 43. 从copyOf方法来看，如何实现带泛型的数组的实例化?
