@@ -2,7 +2,6 @@
 注：JDKAPI文档（http://docs.oracle.com/javase/8/docs/api/index.html或从http://cf.pku.cn/tds/java下载chm格式的）
  JDK的源代码（一般在 C:\Program Files\Java\jdk1.8.0\src.zip）中
 
-### TODO personal info
 
 ## -----java.lang.Object类-----
 1. 其equals与==有没有差别？
@@ -42,6 +41,7 @@
 6.	为什么说我们不能 new Class()?
 
 	*为什么呢*
+
 	因为Class中仅有的构造方法`private Class(ClassLoader loader)`是一个私有方法，无法被调用。
 7.	forName()中执行了什么流程？
 
@@ -57,7 +57,7 @@
 	其执行步骤如下：
 	首先，如果System.getSecurityManager()非空，则使用checkMemberAccess来检查成员的访问性。
 
-	*这都是些什么鬼！！*
+	*这里还要请大神指导*
 
 	然后，如果没有已经缓存过的构造器，则检查其是否恰好为Class.class，如果是的话，由于class在设计上就不能被构造，所以抛出异常`IllegalAccessException`。检查通过之后，就去获取member.declared的constructor，并将其存入cachedConstructor
 	
@@ -216,6 +216,7 @@
 31.	内部是用什么来表示大整数的
 
 	整数数组
+
 	*是吗？*
 	
 ##-----java.util.Arrays类-----
@@ -303,4 +304,4 @@ java.util.Arrays
 	```
 	需要借助强制类型转换。具体来说，在创建数组时，进行比较，(Object)newType == (Object)Object[].class，如果相同，则直接将new得到的数组转换为T[]，否则就调用 Array.newInstance (newType.getComponentType(), newLength),然后再做强制类型转换。
 
-	*不懂*
+	*需要大神指导*
